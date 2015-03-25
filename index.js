@@ -39,7 +39,6 @@ Object.defineProperties(JsSIPCordovaRTCEngine, {
 
 function JsSIPCordovaRTCEngine(session, options) {
     console.log('+++ JsSIPCordovaRTCEngine::new() +++');
-    console.log('+++ JsSIPCordovaRTCEngine::new() | configuration: ',session.ua.configuration);
     console.log('+++ JsSIPCordovaRTCEngine::new() | options: ', options);
     options = options || {};
 
@@ -85,6 +84,13 @@ function JsSIPCordovaRTCEngine(session, options) {
             password: 'test'
         };
     }
+
+    // quick very nasty hack
+    this.phonertc.config.turn = {
+        host: 'turn:ice.webrtc.nu:5349',
+        username: 'webrtc',
+        password: 'curntoat9919'
+    };
 
     console.log('+++ JsSIPCordovaRTCEngine::new() DONE: turn: ', this.phonertc.config.turn);
 
