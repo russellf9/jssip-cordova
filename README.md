@@ -10,7 +10,7 @@ Plugin to run [JsSIP](http://jssip.net) in [Cordova](http://cordova.apache.org).
 
 ## Introduction
 
-This is a copy of the original an attempt to add further functionality.
+This is a copy of the original an attempt to add further functionality, for instance adding the Session.
 
 
 ## Installation
