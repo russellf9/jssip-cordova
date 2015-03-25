@@ -40,7 +40,7 @@ Object.defineProperties(JsSIPCordovaRTCEngine, {
 function JsSIPCordovaRTCEngine(session, options) {
     console.log('+++ JsSIPCordovaRTCEngine::new() +++');
     console.log('+++ JsSIPCordovaRTCEngine::new() | configuration: ',session.ua.configuration);
-
+    console.log('+++ JsSIPCordovaRTCEngine::new() | options: ', options);
     options = options || {};
 
     var turn_server = options.turn_servers;
