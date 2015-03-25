@@ -8,6 +8,11 @@ Plugin to run [JsSIP](http://jssip.net) in [Cordova](http://cordova.apache.org).
 * Cordova [PhoneRTC](http://phonertc.io/) plugin must be installed into your Cordova project.
 
 
+## Introduction
+
+This is a copy of the original an attempt to add further functionality.
+
+
 ## Installation
 
 * Using NPM:
