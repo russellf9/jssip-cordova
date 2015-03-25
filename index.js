@@ -237,6 +237,111 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 };
 
 
+JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
+    console.log('phonertc -> session()');
+
+    var self = this;
+
+    this.ready = false;
+    this.phonertc.config.isInitiator = false;
+
+    try {
+        this.phonertc.session = new cordova.plugins.phonertc.Session(this.phonertc.config);
+    }
+    catch (error) {
+        console.log('phonertc::createOffer(): error creating phonertc.Session instance:', error);
+        onFailure(error);
+        return;
+    }
+
+    console.log('phonertc -> config: ', this.phonertc.config);
+
+    this.phonertc.session.on('phonertc::sendMessage', function(data) {
+        console.log('phonertc.session.on(sendMessage) | data:', data);
+
+        function onIceDone() {
+            self.ready = true;
+
+            if (onSuccess) {
+                onSuccess(self.phonertc.localSDP);
+            }
+            // NOTE: Ensure it is called just once.
+            onSuccess = null;
+        }
+
+        // Got the SDP offe (ICE candidates missing yet).
+        if (data.type === 'offer') {
+            self.phonertc.localSDP = data.sdp;
+        }
+
+        // Got an ICE candidate.
+        else if (data.type === 'candidate') {
+            var candidate = data.candidate;
+
+            if (C.REGEXP_RELAY_CANDIDATE.test(candidate) && VAR.iceRelayCandidateTimeout) {
+                if (!self.iceRelayCandidateTimer) {
+                    self.iceRelayCandidateTimer = setTimeout(function() {
+                        delete self.iceRelayCandidateTimer;
+                        onIceDone();
+                    }, VAR.iceRelayCandidateTimeout);
+                }
+            }
+
+            // Allow old/wrong syntax in Chrome/Firefox.
+            if (!C.REGEXP_GOOD_CANDIDATE.test(candidate)) {
+                candidate = 'a=' + candidate + '\r\n';
+            }
+
+            // m=video before m=audio.
+            if (self.phonertc.localSDP.indexOf('m=video') < self.phonertc.localSDP.indexOf('m=audio')) {
+                if (data.id === 'video') {
+                    self.phonertc.localSDP = self.phonertc.localSDP.replace(/m=audio.*/, candidate + '$&');
+                }
+                else {
+                    self.phonertc.localSDP += candidate;
+                }
+            }
+            // m=audio before m=video (or no m=video).
+            else {
+                if (data.id === 'audio') {
+                    self.phonertc.localSDP = self.phonertc.localSDP.replace(/m=video.*/, candidate + '$&');
+                }
+                else {
+                    self.phonertc.localSDP += candidate;
+                }
+            }
+        }
+
+        // ICE gathering ends.
+        else if (data.type === 'IceGatheringChange' && data.state === 'COMPLETE') {
+            // PhoneRTC fires 'COMPLETE' before all the relay candidates, so wait a bit.
+            setTimeout(function() {
+                onIceDone();
+            }, 100);
+        }
+
+
+
+    });
+
+    this.phonertc.session.on('phonertc::answer', function(data) {
+        console.log('phonertc.session.on(answer) | data:', data);
+    });
+
+    this.phonertc.session.on('phonertc:disconnect', function(data) {
+        console.log('phonertc.session.on(disconnect) | data:', data);
+    });
+
+    console.log('phonertc -> createOffer() DONE!');
+
+    // Start the media flow.
+    //this.phonertc.session.call();
+    onSuccess(this.phonertc.session);
+
+
+};
+
+
 JsSIPCordovaRTCEngine.prototype.createAnswer = function() {
     throw new Error('JsSIPCordovaRTCEngine.createAnswer() not implemented yet');
 };
