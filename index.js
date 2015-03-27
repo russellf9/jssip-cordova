@@ -11,6 +11,11 @@
 
 
 /**
+ * version: 0.0.2
+ */
+
+
+/**
  * Internal constants.
  */
 var C = {
@@ -155,8 +160,10 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 
     console.log('phonertc -> config: ', this.phonertc.config);
 
-    this.phonertc.session.on('phonertc::sendMessage', function(data) {
-        console.log('phonertc.session.on(sendMessage) | data:', data);
+    // TODO make DRY
+    // NOTE was: 'phonertc::sendMessage'
+    this.phonertc.session.on('sendMessage', function(data) {
+        console.log('\n++ A (offer) phonertc.session.on(sendMessage) | data:', data);
 
         function onIceDone() {
             self.ready = true;
@@ -168,7 +175,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
             onSuccess = null;
         }
 
-        // Got the SDP offe (ICE candidates missing yet).
+        // Got the SDP offer (ICE candidates missing yet).
         if (data.type === 'offer') {
             self.phonertc.localSDP = data.sdp;
         }
@@ -236,9 +243,6 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
     // Start the media flow.
     //this.phonertc.session.call();
     onSuccess(this.phonertc.session);
-
-    // CALL IS CAUSING BUG!
-
 
 };
 
@@ -255,15 +259,17 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
         this.phonertc.session = new cordova.plugins.phonertc.Session(this.phonertc.config);
     }
     catch (error) {
-        console.log('phonertc::createOffer(): error creating phonertc.Session instance:', error);
+        console.log('phonertc::Session(): error creating phonertc.Session instance:', error);
         onFailure(error);
         return;
     }
 
     console.log('phonertc -> config: ', this.phonertc.config);
 
-    this.phonertc.session.on('phonertc::sendMessage', function(data) {
-        console.log('phonertc.session.on(sendMessage) | data:', data);
+    // TODO make DRY
+    // NOTE was: 'phonertc::sendMessage'
+    this.phonertc.session.on('sendMessage', function(data) {
+        console.log('\n++ B (session) phonertc.session.on(sendMessage) | data:', data);
 
         function onIceDone() {
             self.ready = true;
@@ -344,6 +350,14 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
     //this.phonertc.session.call();
     onSuccess(this.phonertc.session);
 
+
+};
+
+JsSIPCordovaRTCEngine.prototype.sendMessage = function(data) {
+    console.log('++++ phonertc -> message: ', data)
+
+
+    console.log('++++ phonertc -> self.phonertc: ', self.phonertc);
 
 };
 
