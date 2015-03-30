@@ -11,7 +11,7 @@
 
 
 /**
- * version: 0.0.2
+ * version: 0.0.4
  */
 
 
@@ -43,8 +43,8 @@ Object.defineProperties(JsSIPCordovaRTCEngine, {
 
 
 function JsSIPCordovaRTCEngine(session, options) {
-    console.log('+++ JsSIPCordovaRTCEngine::new() +++');
-    console.log('+++ JsSIPCordovaRTCEngine::new() | options: ', options);
+    console.log('\n$$$ JsSIPCordovaRTCEngine::new() +++');
+    console.log('$$$ JsSIPCordovaRTCEngine::new() | options: ', options);
     options = options || {};
 
     var turn_server = options.turn_servers;
@@ -97,7 +97,8 @@ function JsSIPCordovaRTCEngine(session, options) {
         password: 'curntoat9919'
     };
 
-    console.log('+++ JsSIPCordovaRTCEngine::new() DONE: turn: ', this.phonertc.config.turn);
+    console.log('$$$ JsSIPCordovaRTCEngine::new() DONE: turn: ', this.phonertc.config.turn + '\n\n');
+
 
 }
 
@@ -105,6 +106,13 @@ function JsSIPCordovaRTCEngine(session, options) {
 JsSIPCordovaRTCEngine.prototype.isReady = function() {
     return this.ready;
 };
+
+//
+JsSIPCordovaRTCEngine.prototype.trying = function(session, headers) {
+
+    console.log('JsSIPCordovaRTCEngine::trying:: ',session, headers);
+
+}
 
 
 JsSIPCordovaRTCEngine.prototype.getUserMedia = function(onSuccess, onFailure, constraints) {
@@ -142,7 +150,7 @@ JsSIPCordovaRTCEngine.prototype.addStream = function(stream, onSuccess, onFailur
  * This method creates a new cordova.Session as initiator.
  */
 JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
-    console.log('phonertc -> createOffer()');
+    console.log('\n$$$ phonertc -> createOffer()');
 
     var self = this;
 
@@ -153,12 +161,12 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
         this.phonertc.session = new cordova.plugins.phonertc.Session(this.phonertc.config);
     }
     catch (error) {
-        console.log('phonertc::createOffer(): error creating phonertc.Session instance:', error);
+        console.log('$$$ phonertc::createOffer(): error creating phonertc.Session instance:', error);
         onFailure(error);
         return;
     }
 
-    console.log('phonertc -> config: ', this.phonertc.config);
+    console.log('$$$ phonertc -> config: ', this.phonertc.config);
 
     // TODO make DRY
     // NOTE was: 'phonertc::sendMessage'
@@ -226,7 +234,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
             }, 100);
         }
 
-
+        console.log('$$$ JsSIPCordovaRTCEngine::createOffer() DONE \n');
 
     });
 
@@ -238,7 +246,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
         console.log('phonertc.session.on(disconnect) | data:', data);
     });
 
-    console.log('phonertc -> createOffer() DONE!');
+    console.log('$$$ phonertc -> createOffer() DONE!');
 
     // Start the media flow.
     //this.phonertc.session.call();
@@ -248,7 +256,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 
 
 JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
-    console.log('phonertc -> session()');
+    console.log('\n$$$ phonertc -> session()');
 
     var self = this;
 
@@ -259,17 +267,17 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
         this.phonertc.session = new cordova.plugins.phonertc.Session(this.phonertc.config);
     }
     catch (error) {
-        console.log('phonertc::Session(): error creating phonertc.Session instance:', error);
+        console.log('$$$ phonertc::Session(): error creating phonertc.Session instance:', error);
         onFailure(error);
         return;
     }
 
-    console.log('phonertc -> config: ', this.phonertc.config);
+    console.log('$$$ phonertc -> config: ', this.phonertc.config);
 
     // TODO make DRY
     // NOTE was: 'phonertc::sendMessage'
     this.phonertc.session.on('sendMessage', function(data) {
-        console.log('\n++ B (session) phonertc.session.on(sendMessage) | data:', data);
+        console.log('\n$$$ B (session) phonertc.session.on(sendMessage) | data:', data);
 
         function onIceDone() {
             self.ready = true;
@@ -344,7 +352,7 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
         console.log('phonertc.session.on(disconnect) | data:', data);
     });
 
-    console.log('phonertc -> createOffer() DONE!');
+    console.log('$$$ phonertc -> session() DONE!');
 
     // Start the media flow.
     //this.phonertc.session.call();
