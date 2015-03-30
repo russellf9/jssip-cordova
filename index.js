@@ -11,7 +11,7 @@
 
 
 /**
- * version: 0.0.4
+ * version: 0.0.5
  */
 
 
@@ -148,6 +148,7 @@ JsSIPCordovaRTCEngine.prototype.addStream = function(stream, onSuccess, onFailur
 
 /**
  * This method creates a new cordova.Session as initiator.
+ * outgoing - caller
  */
 JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
     console.log('\n$$$ phonertc -> createOffer()');
@@ -254,11 +255,13 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 
 };
 
-
+// for incoming - callee
 JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
     console.log('\n$$$ phonertc -> session()');
 
     var self = this;
+
+    self.name = 'russell';
 
     this.ready = false;
     this.phonertc.config.isInitiator = false;
@@ -271,78 +274,6 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
         onFailure(error);
         return;
     }
-
-    console.log('$$$ phonertc -> config: ', this.phonertc.config);
-
-    // TODO make DRY
-    // NOTE was: 'phonertc::sendMessage'
-    this.phonertc.session.on('sendMessage', function(data) {
-        console.log('\n$$$ B (session) phonertc.session.on(sendMessage) | data:', data);
-
-        function onIceDone() {
-            self.ready = true;
-
-            if (onSuccess) {
-                onSuccess(self.phonertc.localSDP);
-            }
-            // NOTE: Ensure it is called just once.
-            onSuccess = null;
-        }
-
-        // Got the SDP offe (ICE candidates missing yet).
-        if (data.type === 'offer') {
-            self.phonertc.localSDP = data.sdp;
-        }
-
-        // Got an ICE candidate.
-        else if (data.type === 'candidate') {
-            var candidate = data.candidate;
-
-            if (C.REGEXP_RELAY_CANDIDATE.test(candidate) && VAR.iceRelayCandidateTimeout) {
-                if (!self.iceRelayCandidateTimer) {
-                    self.iceRelayCandidateTimer = setTimeout(function() {
-                        delete self.iceRelayCandidateTimer;
-                        onIceDone();
-                    }, VAR.iceRelayCandidateTimeout);
-                }
-            }
-
-            // Allow old/wrong syntax in Chrome/Firefox.
-            if (!C.REGEXP_GOOD_CANDIDATE.test(candidate)) {
-                candidate = 'a=' + candidate + '\r\n';
-            }
-
-            // m=video before m=audio.
-            if (self.phonertc.localSDP.indexOf('m=video') < self.phonertc.localSDP.indexOf('m=audio')) {
-                if (data.id === 'video') {
-                    self.phonertc.localSDP = self.phonertc.localSDP.replace(/m=audio.*/, candidate + '$&');
-                }
-                else {
-                    self.phonertc.localSDP += candidate;
-                }
-            }
-            // m=audio before m=video (or no m=video).
-            else {
-                if (data.id === 'audio') {
-                    self.phonertc.localSDP = self.phonertc.localSDP.replace(/m=video.*/, candidate + '$&');
-                }
-                else {
-                    self.phonertc.localSDP += candidate;
-                }
-            }
-        }
-
-        // ICE gathering ends.
-        else if (data.type === 'IceGatheringChange' && data.state === 'COMPLETE') {
-            // PhoneRTC fires 'COMPLETE' before all the relay candidates, so wait a bit.
-            setTimeout(function() {
-                onIceDone();
-            }, 100);
-        }
-
-
-
-    });
 
     this.phonertc.session.on('phonertc::answer', function(data) {
         console.log('phonertc.session.on(answer) | data:', data);
@@ -358,15 +289,14 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
     //this.phonertc.session.call();
     onSuccess(this.phonertc.session);
 
-
 };
 
+// shared message handler
 JsSIPCordovaRTCEngine.prototype.sendMessage = function(data) {
-    console.log('++++ phonertc -> message: ', data)
-
-
-    console.log('++++ phonertc -> self.phonertc: ', self.phonertc);
-
+    // Got the SDP offer (ICE candidates missing yet).
+    if (data.type === 'offer') {
+        this.phonertc.localSDP = data.sdp;
+    }
 };
 
 
