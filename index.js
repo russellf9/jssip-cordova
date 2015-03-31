@@ -11,7 +11,7 @@
 
 
 /**
- * version: 0.0.6
+ * version: 0.0.7
  */
 
 
@@ -248,7 +248,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 
 // for incoming - callee
 JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
-    console.log('\n$$$ phonertc -> session()');
+    console.log('\n$$$ JsSIPCordovaRTCEngine::session()');
 
     var self = this;
 
@@ -259,7 +259,7 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
         this.phonertc.session = new cordova.plugins.phonertc.Session(this.phonertc.config);
     }
     catch (error) {
-        console.log('$$$ phonertc::Session(): error creating phonertc.Session instance:', error);
+        console.log('$$$ JsSIPCordovaRTCEngine::session: error creating phonertc.Session instance:', error);
         onFailure(error);
         return;
     }
@@ -286,6 +286,7 @@ JsSIPCordovaRTCEngine.prototype.sendMessage = function(data) {
     if (data.type === 'offer') {
         this.phonertc.localSDP = data.sdp;
     }
+    this.ready = true;
 };
 
 
