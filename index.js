@@ -11,7 +11,7 @@
 
 
 /**
- * version: 0.0.5
+ * version: 0.0.6
  */
 
 
@@ -43,8 +43,7 @@ Object.defineProperties(JsSIPCordovaRTCEngine, {
 
 
 function JsSIPCordovaRTCEngine(session, options) {
-    console.log('\n$$$ JsSIPCordovaRTCEngine::new() +++');
-    console.log('$$$ JsSIPCordovaRTCEngine::new() | options: ', options);
+    console.log('\n$$$ JsSIPCordovaRTCEngine::new() $$$');
     options = options || {};
 
     var turn_server = options.turn_servers;
@@ -65,18 +64,19 @@ function JsSIPCordovaRTCEngine(session, options) {
     this.gotIceRelayCandidate = false;
     this.iceRelayCandidateTimer = null;
 
-    // Must use a single TURN server.// HACK REMOVAL
-    //if (!turn_server) {
-    //    turn_server = configuration.turn_servers[0];
-    //}
-    //else if (typeof turn_server instanceof Array) {
-    //    turn_server = turn_server[0];
-    //}
+    // Must use a single TURN server.
+    if (!turn_server) {
+        turn_server = configuration.turn_servers[0];
+    }
+    else if (typeof turn_server instanceof Array) {
+        turn_server = turn_server[0];
+    }
 
     // Convert WebRTC TURN settings to phonertc TURN settings.
+    // slighty modified from the original
     if (turn_server) {
         this.phonertc.config.turn = {
-            host: turn_server.urls instanceof Array ? turn_server.urls[0] : turn_server.urls,
+            host: turn_server instanceof Array ? turn_server[0].urls : turn_server.urls,
             username: turn_server.username,
             password: turn_server.credential
         };
@@ -90,16 +90,7 @@ function JsSIPCordovaRTCEngine(session, options) {
         };
     }
 
-    // quick very nasty hack
-    this.phonertc.config.turn = {
-        host: 'turn:ice.webrtc.nu:5349',
-        username: 'webrtc',
-        password: 'curntoat9919'
-    };
-
     console.log('$$$ JsSIPCordovaRTCEngine::new() DONE: turn: ', this.phonertc.config.turn + '\n\n');
-
-
 }
 
 
@@ -260,8 +251,6 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
     console.log('\n$$$ phonertc -> session()');
 
     var self = this;
-
-    self.name = 'russell';
 
     this.ready = false;
     this.phonertc.config.isInitiator = false;
