@@ -142,7 +142,7 @@ JsSIPCordovaRTCEngine.prototype.addStream = function(stream, onSuccess, onFailur
  * outgoing - caller
  */
 JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
-    console.log('\n$$$ phonertc -> createOffer()');
+    console.log('\n$$$ phonertc::createOffer()');
 
     var self = this;
 
@@ -248,7 +248,7 @@ JsSIPCordovaRTCEngine.prototype.createOffer = function(onSuccess, onFailure) {
 
 // for incoming - callee
 JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
-    console.log('\n$$$ JsSIPCordovaRTCEngine::session()');
+    console.log('\n$$$ phonertc::session()');
 
     var self = this;
 
@@ -259,7 +259,7 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
         this.phonertc.session = new cordova.plugins.phonertc.Session(this.phonertc.config);
     }
     catch (error) {
-        console.log('$$$ JsSIPCordovaRTCEngine::session: error creating phonertc.Session instance:', error);
+        console.log('$$$ phonertc::session: error creating phonertc.Session instance:', error);
         onFailure(error);
         return;
     }
@@ -282,6 +282,7 @@ JsSIPCordovaRTCEngine.prototype.Session = function(onSuccess, onFailure) {
 
 // shared message handler
 JsSIPCordovaRTCEngine.prototype.sendMessage = function(data) {
+    console.log('phonertc::sendMessage - ', data)
     // Got the SDP offer (ICE candidates missing yet).
     if (data.type === 'offer') {
         this.phonertc.localSDP = data.sdp;
